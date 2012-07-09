@@ -34,18 +34,18 @@ def get_version():
     return data['version_id'].split('.', 2)[0]
 
 
-last_version = None
-
 if __name__ == '__main__':
+    last_version = None
+
     while True:
         version = get_version()
 
         if version is not None:
             if last_version is not None and version != last_version:
-                # 19528 is code for '1s and 0s'
                 hipchat_notify(
-                    19528, ('App Engine (www.khanacademy.org) default version '
-                            'changed to %s' % version))
+                    secrets.hipchat_room_id,
+                    ('App Engine (www.khanacademy.org) default version '
+                     'changed to %s' % version))
             last_version = version
 
         time.sleep(10)
