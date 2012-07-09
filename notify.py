@@ -11,6 +11,7 @@ hipchat.config.token = secrets.hipchat_token
 
 
 def hipchat_notify(room_id, message):
+    # Pure kwargs don't work here because 'from' is a Python keyword...
     hipchat.room.Room.message(**{
         'room_id': room_id,
         'from': 'Mr Monkey',
@@ -41,6 +42,7 @@ if __name__ == '__main__':
 
         if version is not None:
             if last_version is not None and version != last_version:
+                # 19528 is code for '1s and 0s'
                 hipchat_notify(
                     19528, ('App Engine (www.khanacademy.org) default version '
                             'changed to %s' % version))
