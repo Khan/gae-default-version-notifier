@@ -28,7 +28,8 @@ def get_version():
         print "Couldn't get version: %s\n%s" % (e, e.read())
         return None
     finally:
-        f.close()
+        if f:  # ugh http://stackoverflow.com/a/3881558/49485
+            f.close()
 
     # We only want the major version
     return data['version_id'].split('.', 2)[0]
