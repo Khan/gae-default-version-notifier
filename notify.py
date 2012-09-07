@@ -1,5 +1,6 @@
 import contextlib
 import json
+import socket
 import time
 import urllib2
 
@@ -31,6 +32,9 @@ def get_version(url='http://www.khanacademy.org/api/v1/dev/version'):
             # When urlllib2 returns an HTTPError, the textual response returned
             # by read() can be helpful when debugging.
             print e.read()
+        return None
+    except socket.error, e:
+        print "Couldn't get version: socket error %s" % e
         return None
 
     # We only want the major version
