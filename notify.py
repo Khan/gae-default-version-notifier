@@ -84,6 +84,10 @@ def build_message(last_version, version):
 
 
 if __name__ == '__main__':
+    hipchat_notify(
+        secrets.hipchat_room_id,
+        'Restarting notify.py!')
+
     last_version = None
 
     while True:
