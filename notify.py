@@ -88,17 +88,36 @@ if __name__ == '__main__':
         secrets.hipchat_room_id,
         'Restarting notify.py!')
 
-    last_version = None
+    version_log = []
+    checks_since_new_version_found = 0
+    seconds_between_checks = 60
+    minutes_for_new_version_to_stick = 60 * 2
 
     while True:
         version = get_version()
         print version
 
         if version is not None:
-            if last_version is not None and version != last_version:
+            if version not in version_log:
+                version_log.append(version)
+                checks_since_new_version_found = 0
+
+                # Find the previous version
+                last_version = None
+                if len(version_log) > 1:
+                    last_version = version_log[-2]
+
+                # Notify HipChat
                 hipchat_notify(
                     secrets.hipchat_room_id,
                     build_message(last_version, version))
-            last_version = version
 
-        time.sleep(10)
+        checks_since_new_version_found += 1
+
+        # After minutes_for_new_version_to_stick, we assume the version has
+        # "stuck", so we can clear the log and detect an inadvertant flip.
+        if ((checks_since_new_version_found * seconds_between_checks) / 60
+            > minutes_for_new_version_to_stick):
+            version_log = version_log[-1]
+
+        time.sleep(seconds_between_checks)
