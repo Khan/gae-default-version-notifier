@@ -118,6 +118,6 @@ if __name__ == '__main__':
         # "stuck", so we can clear the log and detect an inadvertant flip.
         if ((checks_since_new_version_found * seconds_between_checks) / 60
             > minutes_for_new_version_to_stick):
-            version_log = version_log[-1]
+            version_log = version_log[-1:]
 
         time.sleep(seconds_between_checks)
