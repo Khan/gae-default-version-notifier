@@ -4,22 +4,19 @@ import socket
 import time
 import urllib2
 
-import hipchat.config
-import hipchat.room
-
-import secrets
-
-hipchat.config.token = secrets.hipchat_token
+# Must be on the PYTHONPATH!  And secrets.py must be too.
+import alertlib
 
 
-def hipchat_notify(room_id, message):
-    # Pure kwargs don't work here because 'from' is a Python keyword...
-    hipchat.room.Room.message(**{
-        'room_id': room_id,
-        'from': 'Mr Gorilla',
-        'message': message,
-        'color': 'green',
-    })
+# These are the rooms we send messages to.
+HIPCHAT_ROOMS = ['1s and 0s', '1s/0s: deploys']
+
+
+def hipchat_notify(message):
+    alert = alertlib.Alert(message, html=True)
+    # Let's keep a permanent record of our versions in the logs too
+    for room in HIPCHAT_ROOMS:
+        alert.send_to_hipchat(room, color='green', sender='Mr Gorilla')
 
 
 def get_version(url='http://www.khanacademy.org/api/v1/dev/version'):
@@ -75,18 +72,14 @@ def build_message(last_version, version):
             '<a href="https://appengine.google.com/deployment?&app_id=s~khan-academy">app versions</a><br>'
             '&bull; old: %s (%s, %s)<br>'
             '&bull; new: %s (%s, %s)'
-
             % (version_link(last_version),
                error_logs_link(last_version), instances_link(last_version),
-
                version_link(version),
                error_logs_link(version), instances_link(version)))
 
 
 if __name__ == '__main__':
-    hipchat_notify(
-        secrets.hipchat_room_id,
-        'Restarting notify.py!')
+    hipchat_notify('Restarting notify.py!')
 
     version_log = []
     checks_since_new_version_found = 0
@@ -95,7 +88,7 @@ if __name__ == '__main__':
 
     while True:
         version = get_version()
-        print version
+        print '%s: %s' % (time.ctime(), version)
 
         if version is not None:
             if version not in version_log:
@@ -108,9 +101,7 @@ if __name__ == '__main__':
                     last_version = version_log[-2]
 
                 # Notify HipChat
-                hipchat_notify(
-                    secrets.hipchat_room_id,
-                    build_message(last_version, version))
+                hipchat_notify(build_message(last_version, version))
 
         checks_since_new_version_found += 1
 
