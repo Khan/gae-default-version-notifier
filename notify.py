@@ -8,15 +8,23 @@ import urllib2
 import alertlib
 
 
-# These are the rooms we send messages to.
-HIPCHAT_ROOMS = ['1s and 0s', '1s/0s: deploys']
+# These are the rooms we send messages to.  Values are 'long' or 'short'
+HIPCHAT_ROOMS = {'1s and 0s': 'short',
+                 '1s/0s: deploys': 'long'
+             }
 
 
-def hipchat_notify(message):
-    alert = alertlib.Alert(message, html=True)
+def hipchat_notify(long_msg, short_msg):
+    long_alert = alertlib.Alert(long_msg, html=True)
+    short_alert = alertlib.Alert(short_msg, html=True)
     # Let's keep a permanent record of our versions in the logs too
-    for room in HIPCHAT_ROOMS:
-        alert.send_to_hipchat(room, color='green', sender='Mr Gorilla')
+    for (room, desired_msg_length) in HIPCHAT_ROOMS.iteritems():
+        if desired_msg_length == 'long' and long_msg:
+            long_alert.send_to_hipchat(room, color='green',
+                                       sender='Mr Gorilla')
+        if desired_msg_length == 'short' and short_msg:
+            short_alert.send_to_hipchat(room, color='green',
+                                        sender='Mr Gorilla')
 
 
 def get_version(url='http://www.khanacademy.org/api/v1/dev/version'):
@@ -65,21 +73,26 @@ def instances_link(version, text="instances"):
     return '<a href="%s">%s</a>' % (instances_url(version), text)
 
 
-def build_message(last_version, version):
-    return ('App Engine default version just changed: '
-            '<a href="http://www.khanacademy.org/">khanacademy.org</a>, '
-            '<a href="https://appengine.google.com/dashboard?&app_id=s~khan-academy">appspot dashboard</a>, '
-            '<a href="https://appengine.google.com/deployment?&app_id=s~khan-academy">app versions</a><br>'
-            '&bull; old: %s (%s, %s)<br>'
-            '&bull; new: %s (%s, %s)'
-            % (version_link(last_version),
-               error_logs_link(last_version), instances_link(last_version),
-               version_link(version),
-               error_logs_link(version), instances_link(version)))
+def build_message(last_version, version, make_short):
+    if make_short:
+        return ('App Engine default version just changed: '
+                '%s &rarr; <a href="http://www.khanacademy.org/">%s</a>'
+                % (last_version, version))
+    else:
+        return ('App Engine default version just changed: '
+                '<a href="http://www.khanacademy.org/">khanacademy.org</a>, '
+                '<a href="https://appengine.google.com/dashboard?&app_id=s~khan-academy">appspot dashboard</a>, '
+                '<a href="https://appengine.google.com/deployment?&app_id=s~khan-academy">app versions</a><br>'
+                '&bull; old: %s (%s, %s)<br>'
+                '&bull; new: %s (%s, %s)'
+                % (version_link(last_version),
+                   error_logs_link(last_version), instances_link(last_version),
+                   version_link(version),
+                   error_logs_link(version), instances_link(version)))
 
 
 if __name__ == '__main__':
-    hipchat_notify('Restarting notify.py!')
+    hipchat_notify(long_msg='Restarting notify.py!', short_msg=None)
 
     version_log = []
     checks_since_new_version_found = 0
@@ -101,7 +114,10 @@ if __name__ == '__main__':
                     last_version = version_log[-2]
 
                 # Notify HipChat
-                hipchat_notify(build_message(last_version, version))
+                hipchat_notify(short_msg=build_message(last_version, version,
+                                                       make_short=True),
+                               long_msg=build_message(last_version, version,
+                                                      make_short=False))
 
         checks_since_new_version_found += 1
 
