@@ -1,5 +1,5 @@
 Every 10 seconds it will check the version returned by
-http://www.khanacademy.org/api/v1/dev/version and send a notification
+http://www.khanacademy.org/api/internal/dev/version and send a notification
 to HipChat if it has changed since the last check.
 
 This runs as a process on our internal webserver, toby. 

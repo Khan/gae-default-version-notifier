@@ -27,7 +27,7 @@ def hipchat_notify(long_msg, short_msg):
                                         sender='Mr Gorilla')
 
 
-def get_version(url='http://www.khanacademy.org/api/v1/dev/version'):
+def get_version(url='http://www.khanacademy.org/api/internal/dev/version'):
     try:
         with contextlib.closing(urllib2.urlopen(url)) as f:
             data = json.loads(f.read())
