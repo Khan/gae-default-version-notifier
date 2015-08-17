@@ -1,8 +1,10 @@
+# gae-default-version-notifier
+
 Every 10 seconds it will check the version returned by
 http://www.khanacademy.org/api/internal/dev/version and send a notification
 to HipChat if it has changed since the last check.
 
-This runs as a process on our internal webserver, toby. 
+This runs as a process on our internal webserver, toby.
 
 Since GAE will serve this URL from different instances for about an
 hour after a new default version is designated, we have added some
@@ -15,9 +17,12 @@ reset our history and can detect an inadvertant flip.
 
 This uses alertlib (a sub-repo) to talk to hipchat.  alertlib requires
 being able to import a file called secrets.py with the contents:
-   hipchat_alertlib_token = "<hipchat token value>"
+
+    hipchat_alertlib_token = "<hipchat token value>"
+    slack_alertlib_webhook_url = "<slack url value>"
 
 This service is controlled via upstart, so after modifying, you can
 restart like so:
-   % sudo stop gae-default-version-notifier
-   % sudo start gae-default-version-notifier
+
+    % sudo stop gae-default-version-notifier
+    % sudo start gae-default-version-notifier
