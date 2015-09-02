@@ -106,7 +106,7 @@ class SlackNotifier(object):
 
     def change_message(self, last_version, version):
         """A plaintext message about a version change."""
-        return ('App Engine default version just changed: `%s` -> `%s`'
+        return (u':gae: App Engine default version changed: `%s` \u2192 `%s`'
                 % (last_version, version))
 
     def _version_link(self, version):
@@ -119,7 +119,7 @@ class SlackNotifier(object):
         return {
             "fallback": self.change_message(last_version, version),
             "pretext": (
-                "App Engine default version just changed: "
+                ":gae: App Engine default version just changed: "
                 "<http://www.khanacademy.org|khanacademy.org>, "
                 "<https://appengine.google.com/dashboard?&app_id=s~khan-academy|appspot dashboard>, "
                 "<https://appengine.google.com/deployment?&app_id=s~khan-academy|app versions>."
@@ -156,6 +156,7 @@ class SlackNotifier(object):
         for channel, desired_msg_length in self.CHANNELS.viewitems():
             if desired_msg_length == 'short':
                 notification.send_to_slack(channel,
+                                           simple_message=True,
                                            sender=self.SENDER_NAME,
                                            icon_emoji=self.ICON_EMOJI)
             elif desired_msg_length == 'long':
