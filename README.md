@@ -2,7 +2,7 @@
 
 Every 10 seconds it will check the version returned by
 http://www.khanacademy.org/api/internal/dev/version and send a notification
-to HipChat if it has changed since the last check.
+to Slack if it has changed since the last check.
 
 This runs as a process on our internal webserver, toby.
 
@@ -15,10 +15,9 @@ This means we cannot detect when an actual rollback to a previous
 version has occurred within a short window.  But after 2 hours, we
 reset our history and can detect an inadvertant flip.
 
-This uses alertlib (a sub-repo) to talk to hipchat.  alertlib requires
+This uses alertlib (a sub-repo) to talk to Slack.  alertlib requires
 being able to import a file called secrets.py with the contents:
 
-    hipchat_alertlib_token = "<hipchat token value>"
     slack_alertlib_webhook_url = "<slack url value>"
 
 This service is controlled via upstart, so after modifying, you can

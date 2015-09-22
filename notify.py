@@ -39,63 +39,6 @@ def instances_url(version):
             "version_id=%s" % version)
 
 
-class HipchatNotifier(object):
-    # These are the rooms we send messages to. Values are 'long' or 'short'
-    HIPCHAT_ROOMS = {'1s and 0s': 'short',
-                     '1s/0s: deploys': 'long'}
-
-    def version_link(self, version, text=None):
-        if text is None:
-            text = version
-        return ('<a href="http://%s.khan-academy.appspot.com/">%s</a>'
-                % (version, text))
-
-    def error_logs_link(self, version, text="error logs"):
-        return '<a href="%s">%s</a>' % (error_logs_url(version), text)
-
-    def instances_link(self, version, text="instances"):
-        return '<a href="%s">%s</a>' % (instances_url(version), text)
-
-    def build_message(self, last_version, version, make_short):
-        if make_short:
-            return ('App Engine default version just changed: '
-                    '%s &rarr; <a href="http://www.khanacademy.org/">%s</a>'
-                    % (last_version, version))
-        else:
-            return ('App Engine default version just changed: '
-                    '<a href="http://www.khanacademy.org/">khanacademy.org</a>, '
-                    '<a href="https://appengine.google.com/dashboard?&app_id=s~khan-academy">appspot dashboard</a>, '
-                    '<a href="https://appengine.google.com/deployment?&app_id=s~khan-academy">app versions</a><br>'
-                    '&bull; old: %s (%s, %s)<br>'
-                    '&bull; new: %s (%s, %s)'
-                    % (self.version_link(last_version),
-                       self.error_logs_link(last_version),
-                       self.instances_link(last_version),
-                       self.version_link(version),
-                       self.error_logs_link(version),
-                       self.instances_link(version)))
-
-    def notify(self, long_msg, short_msg):
-        long_alert = alertlib.Alert(long_msg, html=True)
-        short_alert = alertlib.Alert(short_msg, html=True)
-        # Let's keep a permanent record of our versions in the logs too
-        for room, desired_msg_length in self.HIPCHAT_ROOMS.viewitems():
-            if desired_msg_length == 'long' and long_msg:
-                long_alert.send_to_hipchat(room, color='green',
-                                           sender='Mr Gorilla')
-            elif desired_msg_length == 'short' and short_msg:
-                short_alert.send_to_hipchat(room, color='green',
-                                            sender='Mr Gorilla')
-
-    def notify_version_change(self, last_version, version):
-        self.notify(
-            short_msg=self.build_message(last_version, version,
-                                         make_short=True),
-            long_msg=self.build_message(last_version, version,
-                                        make_short=False)
-        )
-
-
 class SlackNotifier(object):
     # channels registered to receive notifications, and whether they want
     # long or short format messages
@@ -186,9 +129,6 @@ if __name__ == '__main__':
             last_version = None
             if len(version_log) > 1:
                 last_version = version_log[-2]
-
-            # Notify HipChat (TO BE DEPRECATED!)
-            HipchatNotifier().notify_version_change(last_version, version)
 
             # Notify Slack
             SlackNotifier().notify_version_change(last_version, version)
