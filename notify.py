@@ -42,8 +42,7 @@ def instances_url(version):
 class SlackNotifier(object):
     # channels registered to receive notifications, and whether they want
     # long or short format messages
-    CHANNELS = {'#1s-and-0s': 'short',
-                '#1s-and-0s-deploys': 'long'}
+    CHANNELS = {'#1s-and-0s-deploys': 'long'}
     SENDER_NAME = 'Mr Gorilla'
     ICON_EMOJI = ':monkey_face:'
 
