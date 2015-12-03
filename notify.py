@@ -9,7 +9,13 @@ import urllib2
 import alertlib
 
 
-def get_version(url='http://www.khanacademy.org/api/internal/dev/version'):
+# Explicitly hit the default module, because by default /api/internal/dev goes
+# to frontend-highmem.
+DEFAULT_VERSION_URL = ('https://default-dot-khan-academy.appspot.com'
+                       '/api/internal/dev/version')
+
+
+def get_version(url=DEFAULT_VERSION_URL):
     try:
         with contextlib.closing(urllib2.urlopen(url)) as f:
             data = json.loads(f.read())
